@@ -8,36 +8,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build
-        run: npm run build
-        env:
-          NEXT_PUBLIC_WHATSAPP: ${{ secrets.NEXT_PUBLIC_WHATSAPP }}
-          NEXT_PUBLIC_INSTAGRAM: ${{ secrets.NEXT_PUBLIC_INSTAGRAM }}
-          NEXT_PUBLIC_BASE_URL: ${{ secrets.NEXT_PUBLIC_BASE_URL }}
-
-      - name: Deploy to VPS
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          port: 22
-          username: root
-          key: ${{ secrets.VPS_SSH_KEY }}
-          source: ".next,public,package.json,package-lock.json"
-          target: "/root/reina-de-copas-site"
-          strip_components: 0
-
-      - name: Restart service
+      - name: Trigger VPS Deploy
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -45,6 +16,25 @@ jobs:
           username: root
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
+            set -e
             cd /root/reina-de-copas-site
-            docker compose down || true
-            docker compose up -d --build
+            
+            # Pull latest code from GitHub
+            git fetch origin
+            git reset --hard origin/main
+            
+            # Install dependencies and build
+            npm ci
+            npm run build
+            
+            # Stop existing stack if running
+            docker stack rm reina-de-copas 2>/dev/null || true
+            sleep 5
+            
+            # Deploy new stack
+            docker stack deploy -c docker-compose.yml reina-de-copas
+            
+            # Verify
+            sleep 10
+            docker stack ps reina-de-copas
+            echo "=== Deployed successfully ==="
