@@ -42,6 +42,32 @@ export default function Navbar() {
             Guía
           </Link>
           <Link
+            href="/quiz"
+            style={{
+              fontWeight: 600,
+              fontSize: '0.95rem',
+              color: 'var(--text)',
+              transition: 'color 0.2s',
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--primary)')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text)')}
+          >
+            Quiz
+          </Link>
+          <Link
+            href="/comunidad"
+            style={{
+              fontWeight: 600,
+              fontSize: '0.95rem',
+              color: 'var(--text)',
+              transition: 'color 0.2s',
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--primary)')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text)')}
+          >
+            Comunidad
+          </Link>
+          <Link
             href="/tienda"
             style={{
               fontWeight: 600,
