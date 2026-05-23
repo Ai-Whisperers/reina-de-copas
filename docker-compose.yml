@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  web:
+    image: node:20-bookworm
+    restart: always
+    ports:
+      - "3133:3000"
+    working_dir: /app
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
+    command: node_modules/.bin/next start
+    volumes:
+      - ./reina-de-copas-site/.next:/app/.next
+      - ./reina-de-copas-site/public:/app/public
+    networks:
+      - default
