@@ -1,4 +1,4 @@
-name: Deploy to VPS
+name: Build & Deploy to VPS
 
 on:
   push:
@@ -8,7 +8,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger VPS Deploy
+      - name: Trigger VPS Build & Deploy
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -23,18 +23,16 @@ jobs:
             git fetch origin
             git reset --hard origin/main
             
-            # Install dependencies and build
-            npm ci
-            npm run build
-            
-            # Stop existing stack if running
+            # Stop existing stack
             docker stack rm reina-de-copas 2>/dev/null || true
+            docker image rm -f reina-de-copas:latest 2>/dev/null || true
             sleep 5
             
-            # Deploy new stack
+            # Build and deploy
+            docker build -t reina-de-copas:latest .
             docker stack deploy -c docker-compose.yml reina-de-copas
             
             # Verify
-            sleep 10
+            sleep 15
             docker stack ps reina-de-copas
             echo "=== Deployed successfully ==="

@@ -2,15 +2,14 @@ version: '3.8'
 
 services:
   web:
-    image: node:20-bookworm
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: reina-de-copas:latest
     restart: always
     environment:
       - PORT=3000
       - NODE_ENV=production
-    command: node_modules/.bin/next start
-    volumes:
-      - .next:/app/.next
-      - ./public:/app/public
     networks:
       - agent-net
     deploy:
