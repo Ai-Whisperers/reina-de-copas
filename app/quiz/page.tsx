@@ -118,7 +118,7 @@ const productImages: Record<string, string> = {
 export default function QuizPage() {
   const [step, setStep] = useState(0)
   // step 0 = intro, 1-7 = questions, 8 = result
-  const [history, setHistory] = useState<number[]>([])
+  const [history, setHistory] = useState<(number | string)[]>([])
 
   const currentQ = questions[step - 1]
 
@@ -129,9 +129,9 @@ export default function QuizPage() {
 
   function handleAnswer(next: number | 'XS' | 'S' | 'L' | 'XL' | 'RTC') {
     if (typeof next === 'string') {
-      setHistory([...history, step, 999])
+      setResultCode(next)
+      setHistory([...history, step, next])
       setStep(8)
-      setHistory((h) => [...h, next as string])
     } else {
       const newHistory = [...history, step, next]
       setHistory(newHistory)
@@ -139,9 +139,9 @@ export default function QuizPage() {
     }
   }
 
-  // result is stored in history[history.length - 1]
-  const result = history[history.length - 1] as string
-  const resultData = resultMap[result] || resultMap['RTC']
+  // result code stored separately
+  const [resultCode, setResultCode] = useState<string>('RTC')
+  const resultData = resultMap[resultCode] || resultMap['RTC']
 
   function handleRestart() {
     setStep(0)

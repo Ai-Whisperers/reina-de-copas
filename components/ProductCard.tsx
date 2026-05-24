@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import type { Product } from '@/lib/products'
 
@@ -14,6 +15,8 @@ export default function ProductCard({ product }: ProductCardProps) {
     minimumFractionDigits: 0,
   }).format(product.price)
 
+  const mainImage = product.images?.[0] || null
+
   return (
     <Link href={`/producto/${product.sku}`}>
       <div className="card" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -24,11 +27,21 @@ export default function ProductCard({ product }: ProductCardProps) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '3rem',
-            color: 'var(--primary)',
+            overflow: 'hidden',
+            position: 'relative',
           }}
         >
-          🩸
+          {mainImage ? (
+            <Image
+              src={mainImage}
+              alt={product.name}
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+              style={{ objectFit: 'cover' }}
+            />
+          ) : (
+            <span style={{ fontSize: '3rem', color: 'var(--primary)' }}>🩸</span>
+          )}
         </div>
         <div style={{ padding: '16px', flex: 1, display: 'flex', flexDirection: 'column' }}>
           <span
@@ -48,7 +61,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           >
             {product.category}
           </span>
-          <h3 style={{ fontSize: '1.1rem', marginBottom: 8, color: 'var(--heading)' }}>
+          <h3 style={{ fontSize: '1.05rem', marginBottom: 8, color: 'var(--heading)', lineHeight: 1.3 }}>
             {product.name}
           </h3>
           <p

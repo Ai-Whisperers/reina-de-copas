@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { getProductById } from '@/lib/products'
@@ -26,6 +27,7 @@ export default function ProductoDetailPage() {
     product && product.sizes.length > 0 ? product.sizes[0] : ''
   )
   const [quantity, setQuantity] = useState(1)
+  const [selectedImage, setSelectedImage] = useState(0)
 
   if (!product) {
     return (
@@ -42,6 +44,8 @@ export default function ProductoDetailPage() {
   }
 
   const whatsappUrl = getProductWhatsAppUrl(product, selectedSize, quantity)
+  const images = product.images?.length ? product.images : []
+  const mainImage = images[selectedImage] || null
 
   const handleAddToCart = () => {
     addItem(
@@ -87,6 +91,7 @@ export default function ProductoDetailPage() {
       >
         {/* Left: Images */}
         <div>
+          {/* Main Image */}
           <div
             style={{
               aspectRatio: '1',
@@ -95,31 +100,56 @@ export default function ProductoDetailPage() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '6rem',
+              overflow: 'hidden',
+              position: 'relative',
               marginBottom: 16,
             }}
           >
-            🩸
+            {mainImage ? (
+              <Image
+                src={mainImage}
+                alt={`${product.name} - imagen ${selectedImage + 1}`}
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                style={{ objectFit: 'cover' }}
+                priority
+              />
+            ) : (
+              <span style={{ fontSize: '6rem' }}>🩸</span>
+            )}
           </div>
-          {product.images.length > 1 && (
+
+          {/* Thumbnail Gallery */}
+          {images.length > 1 && (
             <div style={{ display: 'flex', gap: 8 }}>
-              {product.images.map((img, idx) => (
-                <div
+              {images.map((img, idx) => (
+                <button
                   key={idx}
+                  onClick={() => setSelectedImage(idx)}
                   style={{
-                    width: 64,
-                    height: 64,
+                    width: 72,
+                    height: 72,
                     borderRadius: 8,
-                    border: idx === 0 ? '3px solid var(--primary)' : '2px solid var(--border)',
+                    border: idx === selectedImage ? '3px solid var(--primary)' : '2px solid var(--border)',
                     background: '#fce4ec',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: '1.5rem',
+                    overflow: 'hidden',
+                    position: 'relative',
+                    cursor: 'pointer',
+                    padding: 0,
+                    transition: 'border-color 0.2s',
                   }}
                 >
-                  🩸
-                </div>
+                  <Image
+                    src={img}
+                    alt={`${product.name} - miniatura ${idx + 1}`}
+                    fill
+                    sizes="72px"
+                    style={{ objectFit: 'cover' }}
+                  />
+                </button>
               ))}
             </div>
           )}
@@ -321,7 +351,7 @@ export default function ProductoDetailPage() {
                   (e.currentTarget.style.background = 'none')
                 }
               >
-                -
+                −
               </button>
               <span
                 style={{
